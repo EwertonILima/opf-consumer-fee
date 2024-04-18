@@ -26,6 +26,8 @@ dependencies {
 	implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 	implementation 'org.springframework.kafka:spring-kafka'
 	implementation 'io.github.microutils:kotlin-logging-jvm:3.0.2'
+	implementation 'software.amazon.awssdk:dynamodb-enhanced:2.20.33'
+	implementation 'software.amazon.awssdk:dynamodb:2.20.33'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'

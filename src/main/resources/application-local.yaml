@@ -1,0 +1,26 @@
+server:
+  port: 9091
+
+spring:
+  application:
+    name: consumerfee
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+topics:
+  fee:
+    storage:
+      topic: "fee.storage.topic.v1"
+
+cloud:
+  aws:
+    region:
+      static: sa-east-1
+    dynamodb:
+      endpoint: http://localhost:4566
+    credentials:
+      accessKey: test
+      secretKey: test
