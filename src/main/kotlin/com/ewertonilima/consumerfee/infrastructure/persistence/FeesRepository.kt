@@ -6,6 +6,10 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 
 @Repository
@@ -16,11 +20,28 @@ class FeesRepository(
 
     fun updateFees(feesModel: FeesModel) {
         try {
-            table.putItemWithResponse(PutItemEnhancedRequest.builder(FeesModel::class.java).item(feesModel).build())
-                .get()
-            logger.info("Saving content to DynamoDb")
+            val future = table.putItemWithResponse(
+                PutItemEnhancedRequest.builder(FeesModel::class.java)
+                    .item(feesModel).build()
+            )
+            val result = future.get(10, TimeUnit.SECONDS) // Set a timeout to avoid indefinite blocking
+            logger.info("Successfully saved content to DynamoDB: $result")
+        } catch (e: ExecutionException) {
+            // Handle specific exceptions from DynamoDB
+            if (e.cause is DynamoDbException) {
+                logger.error("DynamoDB specific error: ${e.message}")
+            } else {
+                logger.error("Error executing DynamoDB operation: ${e.cause?.message}")
+            }
+        } catch (e: InterruptedException) {
+            // Handle if the thread was interrupted during get()
+            Thread.currentThread().interrupt() // Set the interrupt flag
+            logger.error("Thread was interrupted during database operation")
+        } catch (e: TimeoutException) {
+            logger.error("Timed out waiting for the database operation to complete")
         } catch (e: Exception) {
-            logger.error("Unexpected error: $e")
+            // Generic exception handler as a last resort
+            logger.error("Unexpected error occurred: ${e.message}")
         }
     }
 
